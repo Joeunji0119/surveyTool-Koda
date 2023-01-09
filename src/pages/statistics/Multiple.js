@@ -1,19 +1,6 @@
 import React from 'react';
 import * as S from './StatisticsStyle';
-import {
-  PieChart,
-  Pie,
-  Tooltip,
-  BarChart,
-  Sector,
-  ResponsiveContainer,
-  Cell,
-  XAxis,
-  YAxis,
-  Legend,
-  CartesianGrid,
-  Bar,
-} from 'recharts';
+import { PieChart, Pie, Tooltip } from 'recharts';
 
 const Multiple = ({ multiple }) => {
   const { id, question, data } = multiple;
@@ -25,7 +12,6 @@ const Multiple = ({ multiple }) => {
     innerRadius,
     outerRadius,
     percent,
-    index,
   }) => {
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);

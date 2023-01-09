@@ -14,21 +14,25 @@ const Template = ({ template }) => {
 
   const passed = status === '완료';
 
+  const header = {
+    headers: {
+      Authorization: adminToken,
+    },
+  };
+
   const toDelete = async () => {
     if (adminToken) {
       try {
-        const res = await axios.delete(`${API.MAIN}/editor/survey/${id}`, {
-          headers: {
-            Authorization: adminToken,
-          },
-        });
-        const { message } = res.data;
-        if (message === 'success') {
-          alert('삭제 되었습니다');
-          window.location.replace('/');
-        } else {
-          alert('삭제가 실패되었습니다');
-        }
+        await axios
+          .delete(`${API.MAIN}/editor/survey/${id}`, header)
+          .then(res => {
+            if (res.data.message === 'success') {
+              alert('삭제 되었습니다');
+              window.location.replace('/');
+            } else {
+              alert('삭제가 실패되었습니다');
+            }
+          });
       } catch (err) {
         throw new Error(err);
       }
@@ -36,23 +40,15 @@ const Template = ({ template }) => {
   };
 
   const theEnd = () => {
-    fetch(`${API.MAIN}/main/list/${id}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: adminToken,
-      },
-    })
-      .then(response => response.json())
-      .then(result => {
-        if (result.message === 'udpate success') {
-          alert('설문이 종료되었습니다');
-          window.location.replace('/');
-        } else {
-          alert('로그인이 필요합니다');
-          navigate('/admin/login');
-        }
-      });
+    axios.post(`${API.MAIN}/main/list/${id}`, header).then(res => {
+      if (res.message === 'udpate success') {
+        alert('설문이 종료되었습니다');
+        window.location.replace('/');
+      } else {
+        alert('로그인이 필요합니다');
+        navigate('/admin/login');
+      }
+    });
   };
 
   return (

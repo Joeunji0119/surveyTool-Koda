@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -19,26 +20,21 @@ const Login = () => {
 
   const toLogin = e => {
     e.preventDefault();
-    fetch(`${API.LOGIN}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        id: info.userId,
-        password: info.userPassword,
-      }),
-    })
-      .then(response => response.json())
-      .then(result => {
-        if (result.adminToken) {
-          localStorage.setItem('token', result.adminToken);
-          alert('로그인 성공');
-          navigate('/');
-        } else {
-          alert('아이디 혹은 비밀번호를 확인해 주세요');
-        }
-      });
+
+    const data = {
+      id: info.userId,
+      password: info.userPassword,
+    };
+
+    axios.post(`${API.LOGIN}`, data).then(res => {
+      if (res.adminToken) {
+        localStorage.setItem('token', res.adminToken);
+        alert('로그인 성공');
+        navigate('/');
+      } else {
+        alert('아이디 혹은 비밀번호를 확인해 주세요');
+      }
+    });
   };
 
   return (
