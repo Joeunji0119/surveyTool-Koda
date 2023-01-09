@@ -141,30 +141,28 @@
 <img src="https://blog.kakaocdn.net/dn/RfO5u/btrO90qoqOd/2e9QYTSYRKlsFzcvmBrMTK/img.gif" width="600px">
 
 ```jsx
-export const QUESTION_ARRAY = (sortIndex, formId, ...args) => {
-  return {
-    1: (
-      <MultipleSingle
-        sortIndex={sortIndex}
-        question={args[0]}
-        option={args[1]}
-        onRemove={args[2]}
-        formId={formId}
-      />
-    ),
 
-    2: (
-      <MultipleMultiple
-       ...
-      />
-    ),
+   const [info, setInfo] = useState({
+    userId: '',
+    userPassword: '',
+  });
 
-    3: (
-      <ShortDescription
-      ...
-      />
-    ),
+  const onChangeinfo = e => {
+    const { name, value } = e.target;
+    setInfo({ ...info, [name]: value });
+  };
+  
+  
+   const passed = info.userId.length > 3 && info.userPassword.length > 3;
+   
+  ...
+  
+  <S.LoginButton disabled={!passed} onClick={toLogin}>
+  
+  ...
+  
 ```
+
 id, password 값을 state 하나로 객체에 담아서 관리했고 이 값들을 body에 담아보냈습니다. 후에 response 값에서 adminToken이 있을 경우 token을 로컬스토리지에 저장했습니다. form 태그를 사용했기 때문에 submit이 동작했을 때 새로고침되지 않기 위해 `e.preventDefault`를 사용했습니다.
 
 `disabled` 속성을 사용해 각각 아이디, 비밀번호 4글자 이상 입력할 시 버튼이 활성화 되도록 했습니다.
@@ -176,20 +174,6 @@ id, password 값을 state 하나로 객체에 담아서 관리했고 이 값들�
   <img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FG93WZ%2FbtrPcWgcC2Z%2FCppWWrG8MtTdqQNk34kQK1%2Fimg.gif" width="600px"> <img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fbp02sg%2FbtrPdcQPJja%2FmJKos45WmvTZA4ZGorAZg1%2Fimg.gif" width="600px">
   
 
-```jsx
-const [optionIndexes, setOptionIndexes] = useState(Object.keys(option));
-//객관식 문항수를 상위 컴포넌트로부터 option이라는 props로 받고 있다.
-
-const addOptionIndexes = () => {
-    setOptionIndexes([...optionIndexes, optionIndexes.length.toString()]);
-  };
-...
-
-{optionIndexes.map(idx => (
-       <Choice key={idx}>
-        ...}
-```
-
 해당 서베이 타이틀을 클릭하면 링크 페이지 (응답자가 설문을 기입하는 링크를 보여주고 복사 가능)로 이동할 수 있게 했습니다.
 결과 버튼을 누르면 통계 페이지, 강제 종료 버튼을 누르면 진행중인 상태를 완료로 바꾸고, 휴지통 버튼을 누르면 데이터 베이스에서 삭제 되는 delete method를 사용했습니다.
 
@@ -200,18 +184,58 @@ const addOptionIndexes = () => {
 
 
 ```jsx
-const [optionIndexes, setOptionIndexes] = useState(Object.keys(option));
-//객관식 문항수를 상위 컴포넌트로부터 option이라는 props로 받고 있다.
 
-const addOptionIndexes = () => {
-    setOptionIndexes([...optionIndexes, optionIndexes.length.toString()]);
+  useEffect(() => {
+    getPaginationData(page);
+  }, []);
+  
+  ...
+  
+  const getPaginationData = async pageNum => {
+    if (adminToken) {
+      try {
+        const res = await getData(filter, search, pageNum);
+        ...
+       }
+    }
+ }
+ 
+ ...
+ 
+   const getData = (filter, search, page) => {
+    return axios.get(
+      `${API.MAIN}/main/option/list?&filter=${filter}&search=${search}&pageNo=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: adminToken,
+        },
+      }
+    );
   };
-...
-
-{optionIndexes.map(idx => (
-       <Choice key={idx}>
-        ...}
+ 
+ ...
+ 
+  const toFilter = async e => {
+   try {
+     setFilter(e.target.value);
+     setIsvisible(false);
+     const res = await getData(e.target.value, search, 1);
+     ...
+    }
+  }
+  
+   const toSearch = async e => {
+    e.preventDefault();
+    try {
+      const res = await getData(filter, search, 1);
+    }
+    ...
+   }
+    
 ```
+
+search 와 filter 인자에 빈값이 들어가면 각 전체 데이터를 불러온다는 것을 이용해 useEffect에 `getPaginationData` 함수가 페이지 1을 인자로 받아 api를 불러오는 `getData()`가 실행되게 했습니다. 각각 필터와 서치를 누를 때마다 `toFilter`, `toSearch` 함수가 발동되고 각각 받은 인자를 `getData()` 로 넘겨 필터와 서치 모두 함께 사용할 수 있게 구현했습니다.
+
 
 <br>
 <br>
@@ -221,17 +245,27 @@ const addOptionIndexes = () => {
 
 
 ```jsx
-const [optionIndexes, setOptionIndexes] = useState(Object.keys(option));
-//객관식 문항수를 상위 컴포넌트로부터 option이라는 props로 받고 있다.
 
-const addOptionIndexes = () => {
-    setOptionIndexes([...optionIndexes, optionIndexes.length.toString()]);
+const [isvisible, setIsvisible] = useState(false) // 모달 토글
+
+
+  const modalRef = useRef();
+
+  const modalClose = e => {
+    if (isvisible && modalRef.current !== e.target) {
+      setIsvisible(false);
+    }
   };
-...
+  
+  ...
+  
+  const outside = isvisible && { onClick: e => modalClose(e) };
 
-{optionIndexes.map(idx => (
-       <Choice key={idx}>
-        ...}
+  return (
+    <S.Background {...outside}>
+    ...
+   )
+
 ```
 
 
@@ -246,20 +280,52 @@ const addOptionIndexes = () => {
 
 
 ```jsx
-const [optionIndexes, setOptionIndexes] = useState(Object.keys(option));
-//객관식 문항수를 상위 컴포넌트로부터 option이라는 props로 받고 있다.
 
-const addOptionIndexes = () => {
-    setOptionIndexes([...optionIndexes, optionIndexes.length.toString()]);
-  };
-...
+const [pageNumber, setPageNumber] = useState(0); // 페이지에서 보여지는 페이지네이션 넘버링 인덱스값 ex) [[1,2,3,4,5],[6,7]] -> 0 or 1
+const [page, setPage] = useState(1); // 현재 보여지는 페이지
 
-{optionIndexes.map(idx => (
-       <Choice key={idx}>
-        ...}
+
+  const paginationNumber = Math.ceil(totalTemplate / limit);
+
+  const paginationNumbers = [];
+  for (let i = 0; i < paginationNumber; i++) {
+    paginationNumbers.push(i + 1);
+  }
+
+  const divide =
+    Math.floor(paginationNumbers.length / 5) +
+    (Math.floor(paginationNumbers.length % 5) > 0 ? 1 : 0);
+
+  const showPagination = [];
+  for (let i = 0; i <= divide; i++) {
+    showPagination.push(paginationNumbers.splice(0, 5));
+  }
+  
+  ...
+  <S.TemplateListBox>
+    {nothing === true && <NoneTemplete />}
+    <TemplateList templates={template} />
+  </S.TemplateListBox>
+  
+   {template.length !== 0 ? (
+     <S.Pagination>
+       <S.PreButton onClick={() => movePrev(pageNumber)}>◀</S.PreButton>
+       {showPagination[pageNumber].map(pages => {
+         return (
+           <S.PageinationNum key={pages} onClick={() => movePage(pages)}>
+             {pages}
+           </S.PageinationNum>
+         );
+       })}
+       <S.NextButton onClick={() => moveNext(pageNumber)}>►</S.NextButton>
+     </S.Pagination>
+   ) : (
+     ' '
+   )}
+  
 ```
 
-`[1,2,3,4,5]` `[6,7,8,9,10]` 처럼 5개씩 잘라서 보여주었고 첫번째 페이지, 마지막 페이지에선 넘어가지 못하게 구현했습니다. 각 번호를 배열 형태로 state에 담았고 또 5개씩 잘라서 보여줘야했기 때문에 이를 인덱스로 관리해서 보여주기 위해 5개씩 자른 배열을 state에 담아 관리했습니다.
+`[1,2,3,4,5]` `[6,7,8,9,10]` 처럼 5개씩 잘라서 보여주었고 첫번째 페이지, 마지막 페이지에선 넘어가지 못하게 구현했습니다. 각 번호를 배열 형태로 state에 담았고 또 5개씩 잘라서 보여줘야했기 때문에 이를 인덱스로 관리해서 보여주기 위해 5개씩 자른 배열을 state에 담아 관리했습니다. 데이터가 없을 경우엔 템플릿 제작 유도 UI와 함께 페이지 네이션 UI를 보이지 않게 구현했습니다.
 
 <br>
 <br>
@@ -271,21 +337,21 @@ const addOptionIndexes = () => {
 width="600px">
 
 ```jsx
-  //생성
-  //최상위 컴포넌트 Editor.js
- <MakeSurvey onSubmit={methods.handleSubmit(onSubmit)}>
+const Link = () => {
+  // 메인에서 Link to 로 넘긴 surveyLink, name 사용
+  const location = useLocation();
+  const name = location.state.name;
+  const surveyLink = location.state.surveyLink;
 
-  //상위 컴포넌트 SurveyEditor.js
-  <TitleInput
-    placeholder="제목을 입력하세요"
-    {...register('surveyName', {
-    shouldSelect: true,
-    required: {
-      value: 'title',
-      message: `제목은 필수!`,
-               },
-     })}
-    />
+  // 서베이 주소 복사 기능
+  const handleCopyClipBoard = async surveyLink => {
+    try {
+      await navigator.clipboard.writeText(surveyLink);
+      alert('복사 성공!');
+    } catch (error) {
+      alert('복사 실패!');
+    }
+  };
 ```
 
 서버와 연결을 줄이기 위해 서버와 연결하는 대신 메인 페이지에서 받은 id 값과 해당 url 데이터 값을 `Link to` 로 state 에 담아 객체로 Link 와 해당 타이틀(name)을 넘겼습니다. Link 페이지에선 state 를 받기 위해 `Location`을 사용해 해당 타이틀과 링크를 가져왔습니다.
@@ -299,16 +365,6 @@ width="600px">
 <br>
 
 
-```jsx
-//삭제
-const methods = useForm({ shouldUnregister: true });
-```
-
-여기서 많이 해맸었습니다. 선택 항목을 삭제했음에도 불구하고 보내지는 폼에서는 적용이 되지 않는 어려움을 마주했습니다. 하루 종일 다양한 방법을 시도했고 결과적으로 Usehook-Form 공식문서를 통해 shouldUnregister:true를 정의하면 마지막 onsubmit 될때 register된 상태인 input의 form만 생성된다는 것을 알았습니다.
-
-<br>
-<br>
-
 
 #### 통계 페이지 recharts 라이브러리 사용, 통계 시각화
 
@@ -317,19 +373,36 @@ width="600px">
 
 
 
+
 ```jsx
-<ErrorMessage
-  errors={errors}
-  name="surveyName"
-  render={({ message }) => (
-    <ErrorM>
-      <Icon>
-        <MdInfo />
-      </Icon>
-      {message}
-    </ErrorM>
-  )}
-/>
+  useEffect(() => {
+    getInfo();
+    getChart();
+    getSubjective();
+    person();
+  }, []);
+```
+
+```jsx
+
+import { PieChart, Pie, Tooltip } from 'recharts';
+
+  <PieChart width={400} height={400}>
+    <Pie
+      dataKey="value"
+      isAnimationActive={true}
+      data={data}
+      labelLine={false}
+      label={renderCustomizedLabel}
+      cx="50%"
+      cy="50%"
+      outerRadius={80}
+      fill="#8884d8"
+    />
+    <Pie />
+    <Tooltip />
+  </PieChart>
+
 ```
 
 통계 시각화를 위해 오픈소스를 사용해 차트를 구현하였습니다. 객관식/주관식/고객 정보(이름,핸드폰 번호)를 따로 표기하기 위해 각각 다른 state에 담아 관리했고 한꺼번에 api를 get하되 데이터의 길이가 0일 경우엔 UI가 보이지 않게 했습니다.
@@ -338,29 +411,4 @@ width="600px">
 <br>
 <br>
 
-#### 에디터 모달 구현
 
-<img src="https://www.notion.so/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2F5dcdb784-db92-48b4-9b87-a2baeaf76f90%2F%25EC%258A%25A4%25ED%2581%25AC%25EB%25A6%25B0%25EC%2583%25B7_2022-09-28_%25EC%2598%25A4%25EC%25A0%2584_1.17.00.png?id=41c43152-a16e-4dba-8327-68782d8b3018&table=block&spaceId=4b97eaca-7938-4c43-b27c-a0c55795a841&width=1800&userId=f89d156c-e33c-4c12-a960-518716a3af07&cache=v2" width="600px">
-
-```jsx
-<ErrorMessage
-  errors={errors}
-  name="surveyName"
-  render={({ message }) => (
-    <ErrorM>
-      <Icon>
-        <MdInfo />
-      </Icon>
-      {message}
-    </ErrorM>
-  )}
-/>
-
-```
-
-모달의 버튼을 눌렀을 때, 해당 템플릿에 맞는 양식을 불러오기 위해 템플릿 양식을 상수데이터로 만들어 axios로 불러오게끔 했습니다.
-
-
-
-<br/>
-<br/>
