@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { React, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import EndingGreeting from '../../components/EndingGreeting';
@@ -12,13 +13,7 @@ const UserContainer = () => {
   const id = url.substring(12);
 
   useEffect(() => {
-    fetch(`${API.SURVEYPAGE}/${id}`, {
-      headers: {
-        'Content-type': 'application/json',
-      },
-    })
-      .then(res => res.json())
-      .then(result => setForm(result));
+    axios(`${API.SURVEYPAGE}/${id}`).then(res => setForm(res));
   }, [id]);
 
   return (

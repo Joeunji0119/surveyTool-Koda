@@ -118,6 +118,7 @@ const Main = () => {
   };
 
   const paginationNumber = Math.ceil(totalTemplate / limit);
+
   const paginationNumbers = [];
   for (let i = 0; i < paginationNumber; i++) {
     paginationNumbers.push(i + 1);
@@ -126,6 +127,7 @@ const Main = () => {
   const divide =
     Math.floor(paginationNumbers.length / 5) +
     (Math.floor(paginationNumbers.length % 5) > 0 ? 1 : 0);
+
   const showPagination = [];
   for (let i = 0; i <= divide; i++) {
     showPagination.push(paginationNumbers.splice(0, 5));
@@ -155,7 +157,9 @@ const Main = () => {
     setPage(page);
     getPaginationData(page);
   };
+
   const outside = isvisible && { onClick: e => modalClose(e) };
+
   return (
     <S.Background {...outside}>
       <Outlet />

@@ -22,14 +22,6 @@ const MainModal = ({ openModal, setOpenModal }) => {
           </S.TitleBox>
           <S.TemplateSelect>
             <S.Template>
-              {/* 새설문지 만들기 버튼*/}
-              {/* <Link to="/editor">
-                <S.NewTemplateBox onClick={() => setOpenModal(false)}>
-                  <S.NewTemplate alt="img" src="/images/newTemplate.png" />
-                  <S.NewTemplateTitle> 새 설문지 만들기 </S.NewTemplateTitle>
-                </S.NewTemplateBox>
-              </Link> */}
-              {/* 기존 양식으로 만들기 버튼*/}
               {MainModalTemplates.map(template => {
                 const { id, name, src } = template;
                 return (
