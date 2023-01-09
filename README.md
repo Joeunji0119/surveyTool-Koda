@@ -310,18 +310,12 @@ const methods = useForm({ shouldUnregister: true });
 <br>
 
 
-#### 폼 데이터 안에서 이미지 보내는 기능 
+#### 통계 페이지 recharts 라이브러리 사용, 통계 시각화
 
-<img src="https://user-images.githubusercontent.com/93697790/196628841-66341773-fa1b-4cbe-8eca-4b641e28f03d.gif"
+<img src="https://blog.kakaocdn.net/dn/RlVFf/btrPd1pkcAZ/tmsMVHMOtnpkiPssz6kIok/img.gif"
 width="600px">
 
-<br>
-<br>
 
-#### 에디터 및 고객 폼 데이터 유효성 검사 기능 
-
-<img src="https://user-images.githubusercontent.com/93697790/197449820-0fc53a72-70dc-4525-a4e9-8a1438ee7a42.gif"
-width="600px">
 
 ```jsx
 <ErrorMessage
@@ -337,16 +331,36 @@ width="600px">
   )}
 />
 ```
-ErrorMessage라는 react-hook-form안에 있는 컴포넌트를 import하여 설정해서 커스텀해주었습니다. name은 해당 register된 이름과 동일하게 설정해주어야 원하는 동작을 하였고 message 또한 미리 설정해주어야 에러 객체가 있을때 message가 보여졌습니다.
+
+통계 시각화를 위해 오픈소스를 사용해 차트를 구현하였습니다. 객관식/주관식/고객 정보(이름,핸드폰 번호)를 따로 표기하기 위해 각각 다른 state에 담아 관리했고 한꺼번에 api를 get하되 데이터의 길이가 0일 경우엔 UI가 보이지 않게 했습니다.
 
 
 <br>
 <br>
 
-#### 고객 페이지 폼데이터 생성 기능 
+#### 에디터 모달 구현
 
-<img src="https://user-images.githubusercontent.com/93697790/197450258-3042aeb2-3bc0-48f1-b489-21d15804292c.gif" width="600px">
+<img src="https://www.notion.so/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2F5dcdb784-db92-48b4-9b87-a2baeaf76f90%2F%25EC%258A%25A4%25ED%2581%25AC%25EB%25A6%25B0%25EC%2583%25B7_2022-09-28_%25EC%2598%25A4%25EC%25A0%2584_1.17.00.png?id=41c43152-a16e-4dba-8327-68782d8b3018&table=block&spaceId=4b97eaca-7938-4c43-b27c-a0c55795a841&width=1800&userId=f89d156c-e33c-4c12-a960-518716a3af07&cache=v2" width="600px">
 
-고객 페이지 폼데이터 또한 관리자 에디터 페이지와 마찬가지로 동일하게 useForm 라이브러리를 사용하여 생성 및 삭제해주었습니다. 
+```jsx
+<ErrorMessage
+  errors={errors}
+  name="surveyName"
+  render={({ message }) => (
+    <ErrorM>
+      <Icon>
+        <MdInfo />
+      </Icon>
+      {message}
+    </ErrorM>
+  )}
+/>
+
+```
+
+모달의 버튼을 눌렀을 때, 해당 템플릿에 맞는 양식을 불러오기 위해 템플릿 양식을 상수데이터로 만들어 axios로 불러오게끔 했습니다.
 
 
+
+<br/>
+<br/>
