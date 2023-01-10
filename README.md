@@ -163,7 +163,7 @@
   
 ```
 
-id, password 값을 state 하나로 객체에 담아서 관리했고 이 값들을 body에 담아보냈습니다. 후에 response 값에서 adminToken이 있을 경우 token을 로컬스토리지에 저장했습니다. form 태그를 사용했기 때문에 submit이 동작했을 때 새로고침되지 않기 위해 `e.preventDefault`를 사용했습니다.
+id, password 값을 state 관리했고 로그인시 body에 담아 post 했습니다. 후에 response 값에서 adminToken이 있을 경우 token을 로컬스토리지에 저장했습니다. form 태그를 사용했기 때문에 submit이 동작했을 때 새로고침되지 않기 위해 `e.preventDefault`를 사용했습니다.
 
 `disabled` 속성을 사용해 각각 아이디, 비밀번호 4글자 이상 입력할 시 버튼이 활성화 되도록 했습니다.
 
